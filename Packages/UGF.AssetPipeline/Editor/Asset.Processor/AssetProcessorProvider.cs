@@ -103,6 +103,29 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor
             m_comparer = comparer ?? AssetProcessorComparer.Default;
         }
 
+        public bool Contains(string guid)
+        {
+            if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
+
+            return m_processors.ContainsKey(guid);
+        }
+
+        public bool Contains(string guid, Type processorType)
+        {
+            if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
+            if (processorType == null) throw new ArgumentNullException(nameof(processorType));
+
+            return m_processors.TryGetValue(guid, out ProcessorCollection collection) && collection.ContainsKey(processorType);
+        }
+
+        public void Add(string guid)
+        {
+            if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
+
+            m_processors.Add(guid, new ProcessorCollection());
+            m_orders.Add(guid, new OrderCollection());
+        }
+
         public void Add(string guid, IAssetProcessor processor)
         {
             if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));

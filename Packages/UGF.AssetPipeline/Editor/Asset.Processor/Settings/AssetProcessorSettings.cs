@@ -34,6 +34,23 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             m_settings.Loaded += OnDataChanged;
         }
 
+        public static bool Contains(string guid)
+        {
+            return m_provider.Contains(guid);
+        }
+
+        public static bool Contains(string guid, Type processorType)
+        {
+            return m_provider.Contains(guid, processorType);
+        }
+
+        public static void Add(string guid)
+        {
+            m_provider.Add(guid);
+            m_observer.UpdateData();
+            m_settings.SaveSettings();
+        }
+
         public static void Add(string guid, IAssetProcessor processor)
         {
             m_provider.Add(guid, processor);

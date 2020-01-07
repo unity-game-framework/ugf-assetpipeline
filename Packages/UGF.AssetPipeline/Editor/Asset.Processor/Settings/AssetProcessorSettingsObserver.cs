@@ -22,6 +22,8 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             {
                 AssetProcessorSettingsData.AssetInfo asset = Data.Assets[i];
 
+                Provider.Add(asset.Guid);
+
                 foreach (IAssetProcessor processor in asset.Processors)
                 {
                     Provider.Add(asset.Guid, processor);
