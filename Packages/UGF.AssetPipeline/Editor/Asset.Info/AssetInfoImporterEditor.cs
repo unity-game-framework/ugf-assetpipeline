@@ -6,6 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace UGF.AssetPipeline.Editor.Asset.Info
 {
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(AssetInfoImporter), true)]
     public class AssetInfoImporterEditor : ScriptedImporterEditor
     {
@@ -60,10 +61,13 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
         {
             base.Apply();
 
-            var data = (AssetInfoData)extraDataTarget;
-            var importer = (AssetInfoImporter)target;
+            for (int i = 0; i < extraDataTargets.Length; i++)
+            {
+                var data = (AssetInfoData)extraDataTargets[i];
+                var importer = (AssetInfoImporter)targets[i];
 
-            importer.Save(data.Info);
+                importer.Save(data.Info);
+            }
         }
     }
 }
