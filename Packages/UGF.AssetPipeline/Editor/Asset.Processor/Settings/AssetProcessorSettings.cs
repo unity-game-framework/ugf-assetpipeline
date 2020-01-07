@@ -20,7 +20,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
 
         private static readonly CustomSettingsEditorPackage<AssetProcessorSettingsData> m_settings = new CustomSettingsEditorPackage<AssetProcessorSettingsData>
         (
-            "UGF.EditorTools",
+            "UGF.AssetPipeline",
             "AssetProcessorSettings",
             CustomSettingsEditorUtility.DEFAULT_PACKAGE_EXTERNAL_FOLDER
         );
