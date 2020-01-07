@@ -30,6 +30,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
 
         static AssetProcessorSettings()
         {
+            m_observer.UpdateProvider();
             m_settings.Saved += OnDataChanged;
             m_settings.Loaded += OnDataChanged;
         }
