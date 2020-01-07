@@ -15,6 +15,12 @@ MonoBehaviour:
   m_active: 1
   m_assets:
   - m_guid: 2c397dc85d4ee6346a4e18706120b6ae
-    m_processors: []
+    m_processors:
+    - id: 0
   references:
     version: 1
+    00000000:
+      type: {class: TestAssetProcessor, ns: UGF.AssetPipeline.Editor.Tests.Asset.Processor,
+        asm: UGF.AssetPipeline.Editor.Tests}
+      data:
+        m_name: Test

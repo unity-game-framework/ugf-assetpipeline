@@ -4,8 +4,7 @@ using UnityEngine;
 
 namespace UGF.AssetPipeline.Editor.Tests.Asset.Processor
 {
-    [Serializable]
-    [AssetProcessor("Test/TestAssetProcessor")]
+    [Serializable, AssetProcessor]
     public class TestAssetProcessor : AssetProcessor
     {
         [SerializeField] private string m_name = "Test";
