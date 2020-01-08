@@ -18,7 +18,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
         private class AssetInfo
         {
             [SerializeField] private string m_guid;
-            [SerializeField] private List<IAssetProcessor> m_processors = new List<IAssetProcessor>();
+            [SerializeReference] private List<IAssetProcessor> m_processors = new List<IAssetProcessor>();
 
             public string Guid { get { return m_guid; } set { m_guid = value; } }
             public List<IAssetProcessor> Processors { get { return m_processors; } }

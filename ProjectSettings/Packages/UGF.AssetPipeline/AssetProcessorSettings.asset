@@ -13,9 +13,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_active: 1
-  m_assets:
-  - m_guid: 2c397dc85d4ee6346a4e18706120b6ae
-  - m_guid: 8e020719de26ecf45b48f1782c0e5e82
+  m_assets: []
   m_processors: []
   references:
     version: 1
