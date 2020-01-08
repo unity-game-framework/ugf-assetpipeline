@@ -15,10 +15,9 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
 
         private class Styles
         {
-            public GUIStyle FoldoutTitlebar { get; } = "IN Title";
             public GUIStyle IconButton { get; } = "IconButton";
-            public GUIStyle MenuIcon { get; } = "PaneOptions";
             public GUIContent AddIcon { get; } = EditorGUIUtility.IconContent("Toolbar Plus");
+            public GUIContent RemoveIcon { get; } = EditorGUIUtility.IconContent("Toolbar Minus");
         }
 
         private void OnEnable()
@@ -62,30 +61,70 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
         {
             SerializedProperty propertyElement = m_list.serializedProperty.GetArrayElementAtIndex(index);
             SerializedProperty propertyGuid = propertyElement.FindPropertyRelative("m_guid");
+            SerializedProperty propertyProcessors = propertyElement.FindPropertyRelative("m_processors");
 
-            float height = EditorGUIUtility.singleLineHeight;
+            float line = EditorGUIUtility.singleLineHeight;
             float space = EditorGUIUtility.standardVerticalSpacing;
 
-            var rectAsset = new Rect(rect.x, rect.y + space, rect.width, height);
+            var rectFoldout = new Rect(rect.x + space, rect.y + space, line, line);
+            var rectField = new Rect(rectFoldout.xMax, rectFoldout.y, rect.width - rectFoldout.width - space, line);
 
-            string guid = propertyGuid.stringValue;
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            var asset = AssetDatabase.LoadAssetAtPath<Object>(path);
+            propertyElement.isExpanded = GUI.Toggle(rectFoldout, propertyElement.isExpanded, GUIContent.none, EditorStyles.foldout);
 
-            asset = EditorGUI.ObjectField(rectAsset, asset, typeof(Object), false);
+            ObjectField(rectField, propertyGuid);
 
-            path = AssetDatabase.GetAssetPath(asset);
-            guid = AssetDatabase.AssetPathToGUID(path);
+            if (propertyElement.isExpanded)
+            {
+                var rectProcessor = new Rect(rectField.x, rectField.y, rectField.width - line - space, rectField.height);
+                var rectMenu = new Rect(rectProcessor.xMax + space, rectProcessor.y + 1F, line, line);
 
-            propertyGuid.stringValue = guid;
+                for (int i = 0; i < propertyProcessors.arraySize; i++)
+                {
+                    rectProcessor.y += line + space;
+                    rectMenu.y += line + space;
+
+                    SerializedProperty propertyProcessor = propertyProcessors.GetArrayElementAtIndex(i);
+
+                    EditorGUI.PropertyField(rectProcessor, propertyProcessor, GUIContent.none);
+
+                    if (GUI.Button(rectMenu, m_styles.RemoveIcon, m_styles.IconButton))
+                    {
+                        propertyProcessors.DeleteArrayElementAtIndex(i);
+                    }
+                }
+
+                var rectAdd = new Rect(rect.xMax - line, rectProcessor.y + line + space, line, line);
+
+                if (GUI.Button(rectAdd, m_styles.AddIcon, m_styles.IconButton))
+                {
+                    propertyProcessors.InsertArrayElementAtIndex(propertyProcessors.arraySize);
+
+                    SerializedProperty propertyProcessor = propertyProcessors.GetArrayElementAtIndex(propertyProcessors.arraySize - 1);
+
+                    propertyProcessor.objectReferenceValue = null;
+                    propertyProcessor.serializedObject.ApplyModifiedProperties();
+                }
+            }
         }
 
         private float OnElementHeight(int index)
         {
-            float height = EditorGUIUtility.singleLineHeight;
+            float line = EditorGUIUtility.singleLineHeight;
             float space = EditorGUIUtility.standardVerticalSpacing;
+            float field = line + space * 2;
 
-            return height + space * 2F;
+            SerializedProperty propertyElement = m_list.serializedProperty.GetArrayElementAtIndex(index);
+            SerializedProperty propertyProcessors = propertyElement.FindPropertyRelative("m_processors");
+
+            float height = field;
+
+            if (propertyElement.isExpanded)
+            {
+                height += field;
+                height += field * propertyProcessors.arraySize;
+            }
+
+            return height;
         }
 
         private void OnAdd(ReorderableList list)
@@ -102,15 +141,18 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             list.serializedProperty.serializedObject.ApplyModifiedProperties();
         }
 
-        private static void DrawLine()
+        private static void ObjectField(Rect rect, SerializedProperty serializedProperty)
         {
-            Color color = GUI.color;
-            GUI.color = new Color(0.1F, 0.1F, 0.1F);
+            string guid = serializedProperty.stringValue;
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var asset = AssetDatabase.LoadAssetAtPath<Object>(path);
 
-            Rect rect = EditorGUILayout.GetControlRect(false, 1F);
+            asset = EditorGUI.ObjectField(rect, asset, typeof(Object), false);
 
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = color;
+            path = AssetDatabase.GetAssetPath(asset);
+            guid = AssetDatabase.AssetPathToGUID(path);
+
+            serializedProperty.stringValue = guid;
         }
     }
 }

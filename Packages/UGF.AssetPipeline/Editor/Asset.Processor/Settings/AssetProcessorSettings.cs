@@ -25,7 +25,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             CustomSettingsEditorUtility.DEFAULT_PACKAGE_EXTERNAL_FOLDER
         );
 
-        private static Dictionary<string, List<AssetProcessor>> m_assets = new Dictionary<string, List<AssetProcessor>>();
+        private static readonly Dictionary<string, List<AssetProcessor>> m_assets = new Dictionary<string, List<AssetProcessor>>();
 
         static AssetProcessorSettings()
         {
