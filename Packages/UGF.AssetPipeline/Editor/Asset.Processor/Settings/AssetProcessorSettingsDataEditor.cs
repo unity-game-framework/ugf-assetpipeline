@@ -60,6 +60,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
         private void OnDrawElement(Rect rect, int index, bool isActive, bool isFocused)
         {
             SerializedProperty propertyElement = m_list.serializedProperty.GetArrayElementAtIndex(index);
+            SerializedProperty propertyActive = propertyElement.FindPropertyRelative("m_active");
             SerializedProperty propertyGuid = propertyElement.FindPropertyRelative("m_guid");
             SerializedProperty propertyProcessors = propertyElement.FindPropertyRelative("m_processors");
 
@@ -67,25 +68,33 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             float space = EditorGUIUtility.standardVerticalSpacing;
 
             var rectFoldout = new Rect(rect.x + space, rect.y + space, line, line);
-            var rectField = new Rect(rectFoldout.xMax, rectFoldout.y, rect.width - rectFoldout.width - space, line);
+            var rectActive = new Rect(rectFoldout.xMax, rectFoldout.y, line, line);
+            var rectField = new Rect(rectActive.xMax, rectActive.y, rect.width - line * 2 - space, line);
 
             propertyElement.isExpanded = GUI.Toggle(rectFoldout, propertyElement.isExpanded, GUIContent.none, EditorStyles.foldout);
+
+            EditorGUI.PropertyField(rectActive, propertyActive, GUIContent.none);
 
             ObjectField(rectField, propertyGuid);
 
             if (propertyElement.isExpanded)
             {
-                var rectProcessor = new Rect(rectField.x, rectField.y, rectField.width - line - space, rectField.height);
+                var rectProcessorActive = new Rect(rectActive.x, rectActive.y, line, line);
+                var rectProcessor = new Rect(rectProcessorActive.xMax, rectField.y, rectField.width - line - space, rectField.height);
                 var rectMenu = new Rect(rectProcessor.xMax + space, rectProcessor.y + 1F, line, line);
 
                 for (int i = 0; i < propertyProcessors.arraySize; i++)
                 {
+                    rectProcessorActive.y += line + space;
                     rectProcessor.y += line + space;
                     rectMenu.y += line + space;
 
                     SerializedProperty propertyProcessor = propertyProcessors.GetArrayElementAtIndex(i);
+                    SerializedProperty propertyProcessorActive = propertyProcessor.FindPropertyRelative("m_active");
+                    SerializedProperty propertyProcessorValue = propertyProcessor.FindPropertyRelative("m_processor");
 
-                    EditorGUI.PropertyField(rectProcessor, propertyProcessor, GUIContent.none);
+                    EditorGUI.PropertyField(rectProcessorActive, propertyProcessorActive, GUIContent.none);
+                    EditorGUI.PropertyField(rectProcessor, propertyProcessorValue, GUIContent.none);
 
                     if (GUI.Button(rectMenu, m_styles.RemoveIcon, m_styles.IconButton))
                     {

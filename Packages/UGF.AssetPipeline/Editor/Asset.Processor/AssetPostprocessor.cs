@@ -25,15 +25,17 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor
                 string path = paths[i];
                 string guid = AssetDatabase.AssetPathToGUID(path);
 
-                if (AssetProcessorSettings.TryGetProcessors(m_processors, guid))
+                if (AssetProcessorSettings.IsActive(guid))
                 {
+                    AssetProcessorSettings.GetActiveProcessors(m_processors, guid);
+
                     for (int p = 0; p < m_processors.Count; p++)
                     {
                         m_processors[p].OnImport(path);
                     }
-                }
 
-                m_processors.Clear();
+                    m_processors.Clear();
+                }
             }
         }
 
@@ -44,15 +46,17 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor
                 string path = paths[i];
                 string guid = AssetDatabase.AssetPathToGUID(path);
 
-                if (AssetProcessorSettings.TryGetProcessors(m_processors, guid))
+                if (AssetProcessorSettings.IsActive(guid))
                 {
+                    AssetProcessorSettings.GetActiveProcessors(m_processors, guid);
+
                     for (int p = 0; p < m_processors.Count; p++)
                     {
                         m_processors[p].OnDelete(path);
                     }
-                }
 
-                m_processors.Clear();
+                    m_processors.Clear();
+                }
             }
         }
 
@@ -64,15 +68,17 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor
                 string pathFrom = pathsFrom[i];
                 string guid = AssetDatabase.AssetPathToGUID(pathTo);
 
-                if (AssetProcessorSettings.TryGetProcessors(m_processors, guid))
+                if (AssetProcessorSettings.IsActive(guid))
                 {
+                    AssetProcessorSettings.GetActiveProcessors(m_processors, guid);
+
                     for (int p = 0; p < m_processors.Count; p++)
                     {
                         m_processors[p].OnMoved(pathFrom, pathTo);
                     }
-                }
 
-                m_processors.Clear();
+                    m_processors.Clear();
+                }
             }
         }
     }
