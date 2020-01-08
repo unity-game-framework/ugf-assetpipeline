@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UGF.EditorTools.Editor.IMGUI;
-using UGF.EditorTools.Editor.IMGUI.Types;
+﻿using UGF.CustomSettings.Editor;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
 {
@@ -14,20 +10,12 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
     {
         private SerializedProperty m_propertyActive;
         private SerializedProperty m_propertyAssets;
-        private SerializedProperty m_propertyProcessors;
-        private TypesDropdown m_processorsDropdown;
-        private int m_tab;
+        private ReorderableList m_list;
         private Styles m_styles;
-        private readonly List<IAssetProcessor> m_processors = new List<IAssetProcessor>();
 
         private class Styles
         {
-            public GUIStyle TabStyle { get; } = "LargeButton";
-            public GUIContent[] TabNames { get; } = { new GUIContent("Assets"), new GUIContent("Processors") };
-            public GUIStyle AddProcessorButton { get; } = "AC Button";
-            public GUIContent AddProcessorButtonContent { get; } = new GUIContent("Add Processor");
             public GUIStyle FoldoutTitlebar { get; } = "IN Title";
-            public GUIStyle ProcessorElement { get; } = "Box";
             public GUIStyle IconButton { get; } = "IconButton";
             public GUIStyle MenuIcon { get; } = "PaneOptions";
             public GUIContent AddIcon { get; } = EditorGUIUtility.IconContent("Toolbar Plus");
@@ -37,10 +25,12 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
         {
             m_propertyActive = serializedObject.FindProperty("m_active");
             m_propertyAssets = serializedObject.FindProperty("m_assets");
-            m_propertyProcessors = serializedObject.FindProperty("m_processors");
 
-            m_processorsDropdown = new TypesDropdown(() => TypeCache.GetTypesWithAttribute<AssetProcessorAttribute>());
-            m_processorsDropdown.Selected += ProcessorTypeSelected;
+            m_list = new ReorderableList(serializedObject, m_propertyAssets);
+            m_list.drawHeaderCallback = OnDrawHeader;
+            m_list.drawElementCallback = OnDrawElement;
+            m_list.elementHeightCallback = OnElementHeight;
+            m_list.onAddCallback = OnAdd;
         }
 
         public override void OnInspectorGUI()
@@ -53,178 +43,63 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             serializedObject.UpdateIfRequiredOrScript();
 
             EditorGUILayout.PropertyField(m_propertyActive);
+            EditorGUILayout.Space();
 
-            DrawTabs();
-
-            switch (m_tab)
+            using (new CustomSettingsInspectorScope())
             {
-                case 0:
-                {
-                    DrawAssetTab();
-                    break;
-                }
-                case 1:
-                {
-                    DrawProcessorTab();
-                    break;
-                }
+                m_list.DoLayoutList();
             }
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawTabs()
+        private void OnDrawHeader(Rect rect)
         {
-            EditorGUILayout.Space();
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.FlexibleSpace();
-
-                m_tab = GUILayout.Toolbar(m_tab, m_styles.TabNames, m_styles.TabStyle);
-
-                GUILayout.FlexibleSpace();
-            }
-
-            EditorGUILayout.Space();
+            GUI.Label(rect, $"{m_propertyAssets.displayName} (Size: {m_propertyAssets.arraySize})", EditorStyles.boldLabel);
         }
 
-        private void DrawAssetTab()
+        private void OnDrawElement(Rect rect, int index, bool isActive, bool isFocused)
         {
-            for (int i = 0; i < m_propertyAssets.arraySize; i++)
-            {
-                SerializedProperty propertyAsset = m_propertyAssets.GetArrayElementAtIndex(i);
-                SerializedProperty propertyGuid = propertyAsset.FindPropertyRelative("m_guid");
-                SerializedProperty propertyProcessors = propertyAsset.FindPropertyRelative("m_processors");
+            SerializedProperty propertyElement = m_list.serializedProperty.GetArrayElementAtIndex(index);
+            SerializedProperty propertyGuid = propertyElement.FindPropertyRelative("m_guid");
 
-                string guid = propertyGuid.stringValue;
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                var asset = AssetDatabase.LoadAssetAtPath<Object>(path);
-                string assetName = asset != null ? ObjectNames.GetInspectorTitle(asset) : "Missing";
+            float height = EditorGUIUtility.singleLineHeight;
+            float space = EditorGUIUtility.standardVerticalSpacing;
 
-                using (new EditorGUILayout.HorizontalScope(m_styles.FoldoutTitlebar))
-                {
-                    propertyAsset.isExpanded = EditorGUILayout.Foldout(propertyAsset.isExpanded, assetName, true);
+            var rectAsset = new Rect(rect.x, rect.y + space, rect.width, height);
 
-                    if (DrawMenuButton(GUIContent.none, m_styles.MenuIcon))
-                    {
-                        ShowAssetMenu(guid);
-                    }
-                }
+            string guid = propertyGuid.stringValue;
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var asset = AssetDatabase.LoadAssetAtPath<Object>(path);
 
-                if (propertyAsset.isExpanded)
-                {
-                    EditorGUILayout.Space(2.5F);
+            asset = EditorGUI.ObjectField(rectAsset, asset, typeof(Object), false);
 
-                    using (new EditorGUI.IndentLevelScope())
-                    {
-                        using (new EditorGUI.DisabledScope(true))
-                        {
-                            Type assetType = asset != null ? asset.GetType() : typeof(Object);
+            path = AssetDatabase.GetAssetPath(asset);
+            guid = AssetDatabase.AssetPathToGUID(path);
 
-                            EditorGUILayout.ObjectField(asset, assetType, false);
-                        }
-
-                        for (int p = 0; p < propertyProcessors.arraySize; p++)
-                        {
-                            SerializedProperty propertyProcessor = propertyProcessors.GetArrayElementAtIndex(p);
-                            string processorName = propertyProcessor.stringValue;
-
-                            using (new EditorGUILayout.HorizontalScope())
-                            {
-                                EditorGUILayout.LabelField(processorName);
-
-                                if (DrawMenuButton(GUIContent.none, m_styles.MenuIcon))
-                                {
-                                    ShowAssetProcessorMenu(guid, p);
-                                }
-                            }
-                        }
-                    }
-
-                    EditorGUILayout.Space(2.5F);
-                }
-            }
-
-            if (m_propertyAssets.arraySize > 0)
-            {
-                DrawLine();
-            }
-            else
-            {
-                EditorGUILayout.HelpBox("There is no any assets.", MessageType.Info);
-            }
+            propertyGuid.stringValue = guid;
         }
 
-        private void DrawProcessorTab()
+        private float OnElementHeight(int index)
         {
-            for (int i = 0; i < m_propertyProcessors.arraySize; i++)
-            {
-                SerializedProperty propertyProcessor = m_propertyProcessors.GetArrayElementAtIndex(i);
-                SerializedProperty propertyProcessorData = propertyProcessor.FindPropertyRelative("m_processor");
-                string processorName = GetProcessorName(propertyProcessorData);
+            float height = EditorGUIUtility.singleLineHeight;
+            float space = EditorGUIUtility.standardVerticalSpacing;
 
-                using (new EditorGUILayout.HorizontalScope(m_styles.FoldoutTitlebar))
-                {
-                    propertyProcessor.isExpanded = EditorGUILayout.Foldout(propertyProcessor.isExpanded, processorName, true);
-
-                    if (DrawMenuButton(GUIContent.none, m_styles.MenuIcon))
-                    {
-                        ShowProcessorMenu(i);
-                    }
-                }
-
-                if (propertyProcessor.isExpanded)
-                {
-                    EditorGUILayout.Space(2.5F);
-
-                    using (new EditorGUI.IndentLevelScope())
-                    {
-                        EditorIMGUIUtility.DrawSerializedPropertyChildren(serializedObject, propertyProcessorData.propertyPath);
-                    }
-
-                    EditorGUILayout.Space(2.5F);
-                }
-            }
-
-            if (m_propertyProcessors.arraySize > 0)
-            {
-                DrawLine();
-            }
-            else
-            {
-                EditorGUILayout.HelpBox("There is no any processors.", MessageType.Info);
-            }
-
-            DrawAddProcessorButton();
+            return height + space * 2F;
         }
 
-        private void DrawAddProcessorButton()
+        private void OnAdd(ReorderableList list)
         {
-            EditorGUILayout.Space();
+            list.serializedProperty.InsertArrayElementAtIndex(list.serializedProperty.arraySize);
 
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.FlexibleSpace();
+            SerializedProperty propertyElement = list.serializedProperty.GetArrayElementAtIndex(list.serializedProperty.arraySize - 1);
+            SerializedProperty propertyGuid = propertyElement.FindPropertyRelative("m_guid");
+            SerializedProperty propertyProcessors = propertyElement.FindPropertyRelative("m_processors");
 
-                Rect rect = GUILayoutUtility.GetRect(m_styles.AddProcessorButtonContent, m_styles.AddProcessorButton);
+            propertyGuid.stringValue = string.Empty;
+            propertyProcessors.ClearArray();
 
-                if (GUI.Button(rect, m_styles.AddProcessorButtonContent, m_styles.AddProcessorButton))
-                {
-                    m_processorsDropdown.Show(rect);
-                }
-
-                GUILayout.FlexibleSpace();
-            }
-
-            EditorGUILayout.Space();
-        }
-
-        private void ProcessorTypeSelected(Type processorType)
-        {
-            var processor = (IAssetProcessor)Activator.CreateInstance(processorType);
-
-            AssetProcessorSettings.AddProcessor(processor);
+            list.serializedProperty.serializedObject.ApplyModifiedProperties();
         }
 
         private static void DrawLine()
@@ -236,124 +111,6 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
 
             GUI.DrawTexture(rect, Texture2D.whiteTexture);
             GUI.color = color;
-        }
-
-        private bool DrawMenuButton(GUIContent content, GUIStyle style)
-        {
-            Rect rect = GUILayoutUtility.GetRect(GUIContent.none, style);
-
-            rect.y += 4F;
-            rect.x -= 4F;
-
-            return GUI.Button(rect, content, style);
-        }
-
-        private void ShowAssetMenu(string guid)
-        {
-            var menu = new GenericMenu { allowDuplicateNames = true };
-
-            AssetProcessorSettings.GetProcessors(m_processors);
-
-            for (int i = 0; i < m_processors.Count; i++)
-            {
-                IAssetProcessor processor = m_processors[i];
-                string processorName = processor != null ? ObjectNames.NicifyVariableName(processor.GetType().Name) : "Unknown";
-
-                processorName = $"Add Processor/{processorName}";
-
-                menu.AddItem(new GUIContent(processorName), false, AddProcessorMenu, new object[] { guid, processor });
-            }
-
-            menu.AddItem(new GUIContent("Remove"), false, RemoveAssetMenu, guid);
-
-            menu.ShowAsContext();
-            m_processors.Clear();
-        }
-
-        private void ShowProcessorMenu(int index)
-        {
-            var menu = new GenericMenu();
-
-            AssetProcessorSettings.GetProcessors(m_processors);
-
-            if (m_processors[index] != null)
-            {
-                IAssetProcessor processor = m_processors[index];
-
-                menu.AddItem(new GUIContent("Remove"), false, RemoveProcessorMenu, processor);
-            }
-            else
-            {
-                menu.AddDisabledItem(new GUIContent("Remove"));
-            }
-
-            menu.ShowAsContext();
-            m_processors.Clear();
-        }
-
-        private void ShowAssetProcessorMenu(string guid, int index)
-        {
-            var menu = new GenericMenu();
-
-            AssetProcessorSettings.GetProcessors(m_processors);
-
-            if (m_processors[index] != null)
-            {
-                IAssetProcessor processor = m_processors[index];
-
-                menu.AddItem(new GUIContent("Remove"), false, RemoveAssetProcessorMenu, new object[] { guid, processor });
-            }
-            else
-            {
-                menu.AddDisabledItem(new GUIContent("Remove"));
-            }
-
-            menu.ShowAsContext();
-            m_processors.Clear();
-        }
-
-        private void AddProcessorMenu(object userData)
-        {
-            var array = (object[])userData;
-            string guid = (string)array[0];
-            var processor = (IAssetProcessor)array[1];
-
-            AssetProcessorSettings.AddAssetProcessor(guid, processor);
-        }
-
-        private void RemoveAssetMenu(object userData)
-        {
-            string guid = (string)userData;
-
-            AssetProcessorSettings.RemoveAsset(guid);
-        }
-
-        private void RemoveProcessorMenu(object userData)
-        {
-            var processor = (IAssetProcessor)userData;
-
-            AssetProcessorSettings.RemoveProcessor(processor);
-        }
-
-        private void RemoveAssetProcessorMenu(object userData)
-        {
-            var array = (object[])userData;
-            string guid = (string)array[0];
-            var processor = (IAssetProcessor)array[1];
-
-            AssetProcessorSettings.RemoveAssetProcessor(guid, processor);
-        }
-
-        private static string GetProcessorName(SerializedProperty propertyProcessor)
-        {
-            string processorName = propertyProcessor.managedReferenceFullTypename.Split('.').LastOrDefault();
-
-            if (string.IsNullOrEmpty(processorName))
-            {
-                processorName = "Unknown";
-            }
-
-            return ObjectNames.NicifyVariableName(processorName);
         }
     }
 }

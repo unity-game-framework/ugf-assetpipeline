@@ -1,6 +1,8 @@
-﻿namespace UGF.AssetPipeline.Editor.Asset.Processor
+﻿using UnityEngine;
+
+namespace UGF.AssetPipeline.Editor.Asset.Processor
 {
-    public abstract class AssetProcessor : IAssetProcessor
+    public abstract class AssetProcessor : ScriptableObject
     {
         public virtual void OnImport(string path)
         {

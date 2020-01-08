@@ -1,10 +1,9 @@
-﻿using System;
-using UGF.AssetPipeline.Editor.Asset.Processor;
+﻿using UGF.AssetPipeline.Editor.Asset.Processor;
 using UnityEngine;
 
 namespace UGF.AssetPipeline.Editor.Tests.Asset.Processor
 {
-    [Serializable, AssetProcessor]
+    [CreateAssetMenu(menuName = "Test/TestAssetProcessor")]
     public class TestAssetProcessor : AssetProcessor
     {
         [SerializeField] private string m_name = "Test";

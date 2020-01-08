@@ -6,7 +6,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor
 {
     internal class AssetPostprocessor : UnityEditor.AssetPostprocessor
     {
-        private static List<IAssetProcessor> m_processors = new List<IAssetProcessor>();
+        private static List<AssetProcessor> m_processors = new List<AssetProcessor>();
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
