@@ -123,7 +123,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
                 {
                     AssetProcessorSettingsData.ProcessorInfo processorInfo = info.ProcessorsInfos[i];
 
-                    if (processorInfo.Active)
+                    if (processorInfo.Active && processorInfo.Processor != null)
                     {
                         processors.Add(processorInfo.Processor);
                     }
@@ -140,7 +140,12 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             {
                 for (int i = 0; i < info.ProcessorsInfos.Count; i++)
                 {
-                    processors.Add(info.ProcessorsInfos[i].Processor);
+                    AssetProcessorSettingsData.ProcessorInfo processorInfo = info.ProcessorsInfos[i];
+
+                    if (processorInfo.Processor != null)
+                    {
+                        processors.Add(processorInfo.Processor);
+                    }
                 }
             }
         }

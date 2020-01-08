@@ -109,8 +109,11 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
                     propertyProcessors.InsertArrayElementAtIndex(propertyProcessors.arraySize);
 
                     SerializedProperty propertyProcessor = propertyProcessors.GetArrayElementAtIndex(propertyProcessors.arraySize - 1);
+                    SerializedProperty propertyProcessorActive = propertyProcessor.FindPropertyRelative("m_active");
+                    SerializedProperty propertyProcessorValue = propertyProcessor.FindPropertyRelative("m_processor");
 
-                    propertyProcessor.objectReferenceValue = null;
+                    propertyProcessorActive.boolValue = true;
+                    propertyProcessorValue.objectReferenceValue = null;
                     propertyProcessor.serializedObject.ApplyModifiedProperties();
                 }
             }
@@ -141,9 +144,11 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             list.serializedProperty.InsertArrayElementAtIndex(list.serializedProperty.arraySize);
 
             SerializedProperty propertyElement = list.serializedProperty.GetArrayElementAtIndex(list.serializedProperty.arraySize - 1);
+            SerializedProperty propertyActive = propertyElement.FindPropertyRelative("m_active");
             SerializedProperty propertyGuid = propertyElement.FindPropertyRelative("m_guid");
             SerializedProperty propertyProcessors = propertyElement.FindPropertyRelative("m_processors");
 
+            propertyActive.boolValue = true;
             propertyGuid.stringValue = string.Empty;
             propertyProcessors.ClearArray();
 
