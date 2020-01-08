@@ -39,14 +39,14 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
         {
             if (processor == null) throw new ArgumentNullException(nameof(processor));
 
-            return m_settings.Data.Processors.Contains(processor);
+            return TryGetProcessorId(processor, out _);
         }
 
         public static void AddAsset(string guid)
         {
             if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
 
-            m_settings.Data.Assets.Add(guid, new List<IAssetProcessor>());
+            m_settings.Data.Assets.Add(guid, new List<string>());
             m_settings.SaveSettings();
         }
 
@@ -63,19 +63,21 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
             if (processor == null) throw new ArgumentNullException(nameof(processor));
 
-            if (!Contains(processor))
+            if (!TryGetProcessorId(processor, out string id))
             {
-                AddProcessor(processor);
+                id = Guid.NewGuid().ToString("N");
+
+                m_settings.Data.Processors.Add(id, processor);
             }
 
-            if (!m_settings.Data.Assets.TryGetValue(guid, out List<IAssetProcessor> processors))
+            if (!m_settings.Data.Assets.TryGetValue(guid, out List<string> processors))
             {
-                processors = new List<IAssetProcessor>();
+                processors = new List<string>();
 
                 m_settings.Data.Assets.Add(guid, processors);
             }
 
-            processors.Add(processor);
+            processors.Add(id);
             m_settings.SaveSettings();
         }
 
@@ -84,10 +86,13 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
             if (processor == null) throw new ArgumentNullException(nameof(processor));
 
-            if (m_settings.Data.Assets.TryGetValue(guid, out List<IAssetProcessor> processors))
+            if (TryGetProcessorId(processor, out string id))
             {
-                processors.Remove(processor);
-                m_settings.SaveSettings();
+                if (m_settings.Data.Assets.TryGetValue(guid, out List<string> processors))
+                {
+                    processors.Remove(id);
+                    m_settings.SaveSettings();
+                }
             }
         }
 
@@ -95,7 +100,14 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
         {
             if (processor == null) throw new ArgumentNullException(nameof(processor));
 
-            m_settings.Data.Processors.Add(processor);
+            if (TryGetProcessorId(processor, out string id))
+            {
+                throw new ArgumentException($"The specified processor already exists: '{processor}'.");
+            }
+
+            id = Guid.NewGuid().ToString("N");
+
+            m_settings.Data.Processors.Add(id, processor);
             m_settings.SaveSettings();
         }
 
@@ -103,22 +115,25 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
         {
             if (processor == null) throw new ArgumentNullException(nameof(processor));
 
-            foreach (KeyValuePair<string, List<IAssetProcessor>> pair in m_settings.Data.Assets)
+            if (TryGetProcessorId(processor, out string id))
             {
-                pair.Value.Remove(processor);
-            }
+                foreach (KeyValuePair<string, List<string>> pair in m_settings.Data.Assets)
+                {
+                    pair.Value.Remove(id);
+                }
 
-            m_settings.Data.Processors.Remove(processor);
-            m_settings.SaveSettings();
+                m_settings.Data.Processors.Remove(id);
+                m_settings.SaveSettings();
+            }
         }
 
         public static void GetProcessors(ICollection<IAssetProcessor> processors)
         {
             if (processors == null) throw new ArgumentNullException(nameof(processors));
 
-            for (int i = 0; i < m_settings.Data.Processors.Count; i++)
+            foreach (KeyValuePair<string, IAssetProcessor> pair in m_settings.Data.Processors)
             {
-                processors.Add(m_settings.Data.Processors[i]);
+                processors.Add(pair.Value);
             }
         }
 
@@ -127,16 +142,36 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             if (processors == null) throw new ArgumentNullException(nameof(processors));
             if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
 
-            if (m_settings.Data.Assets.TryGetValue(guid, out List<IAssetProcessor> collection))
+            if (m_settings.Data.Assets.TryGetValue(guid, out List<string> ids))
             {
-                for (int i = 0; i < collection.Count; i++)
+                for (int i = 0; i < ids.Count; i++)
                 {
-                    processors.Add(collection[i]);
+                    string id = ids[i];
+
+                    if (m_settings.Data.Processors.TryGetValue(id, out IAssetProcessor processor))
+                    {
+                        processors.Add(processor);
+                    }
                 }
 
-                return collection.Count > 0;
+                return ids.Count > 0;
             }
 
+            return false;
+        }
+
+        private static bool TryGetProcessorId(IAssetProcessor processor, out string id)
+        {
+            foreach (KeyValuePair<string, IAssetProcessor> pair in m_settings.Data.Processors)
+            {
+                if (pair.Value == processor)
+                {
+                    id = pair.Key;
+                    return true;
+                }
+            }
+
+            id = null;
             return false;
         }
 

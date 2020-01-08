@@ -128,22 +128,17 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
                         for (int p = 0; p < propertyProcessors.arraySize; p++)
                         {
                             SerializedProperty propertyProcessor = propertyProcessors.GetArrayElementAtIndex(p);
-                            string processorName = GetProcessorName(propertyProcessor);
+                            string processorName = propertyProcessor.stringValue;
 
                             using (new EditorGUILayout.HorizontalScope())
                             {
                                 EditorGUILayout.LabelField(processorName);
-
 
                                 if (DrawMenuButton(GUIContent.none, m_styles.MenuIcon))
                                 {
                                     ShowAssetProcessorMenu(guid, p);
                                 }
                             }
-                        }
-
-                        if (propertyProcessors.arraySize == 0)
-                        {
                         }
                     }
 
@@ -166,7 +161,8 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             for (int i = 0; i < m_propertyProcessors.arraySize; i++)
             {
                 SerializedProperty propertyProcessor = m_propertyProcessors.GetArrayElementAtIndex(i);
-                string processorName = GetProcessorName(propertyProcessor);
+                SerializedProperty propertyProcessorData = propertyProcessor.FindPropertyRelative("m_processor");
+                string processorName = GetProcessorName(propertyProcessorData);
 
                 using (new EditorGUILayout.HorizontalScope(m_styles.FoldoutTitlebar))
                 {
@@ -184,7 +180,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
 
                     using (new EditorGUI.IndentLevelScope())
                     {
-                        EditorIMGUIUtility.DrawSerializedPropertyChildren(serializedObject, propertyProcessor.propertyPath);
+                        EditorIMGUIUtility.DrawSerializedPropertyChildren(serializedObject, propertyProcessorData.propertyPath);
                     }
 
                     EditorGUILayout.Space(2.5F);
@@ -254,7 +250,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
 
         private void ShowAssetMenu(string guid)
         {
-            var menu = new GenericMenu();
+            var menu = new GenericMenu { allowDuplicateNames = true };
 
             AssetProcessorSettings.GetProcessors(m_processors);
 

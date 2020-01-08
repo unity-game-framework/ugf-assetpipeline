@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_active: 1
   m_assets: []
-  m_processors: []
+  m_processors:
+  - m_id: bc377140365245f9bad73316e5077ede
+    m_processor:
+      id: 0
   references:
     version: 1
+    00000000:
+      type: {class: TestAssetProcessor, ns: UGF.AssetPipeline.Editor.Tests.Asset.Processor,
+        asm: UGF.AssetPipeline.Editor.Tests}
+      data:
+        m_name: Test
