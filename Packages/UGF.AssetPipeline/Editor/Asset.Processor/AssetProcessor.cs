@@ -2,8 +2,6 @@
 {
     public abstract class AssetProcessor : IAssetProcessor
     {
-        public int Order { get; set; }
-
         public virtual void OnImport(string path)
         {
         }

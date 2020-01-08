@@ -5,7 +5,10 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor
 {
     internal static class AssetProcessorEditorMenu
     {
-        [MenuItem("Assets/Create/UGF/AssetProcessor/Add to Asset Processors", false, 2000)]
+        private const string ADD_ASSET_PROCESSOR_MENU_NAME = "Assets/Create/UGF/AssetPipeline/Add to Asset Processors";
+        private const string REMOVE_ASSET_PROCESSOR_MENU_NAME = "Assets/Create/UGF/AssetPipeline/Remove from Asset Processors";
+
+        [MenuItem(ADD_ASSET_PROCESSOR_MENU_NAME, false, 2000)]
         private static void AddAssetProcessorMenu()
         {
             string[] guids = Selection.assetGUIDs;
@@ -14,17 +17,17 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor
             {
                 string guid = guids[i];
 
-                AssetProcessorSettings.Add(guid);
+                AssetProcessorSettings.AddAsset(guid);
             }
         }
 
-        [MenuItem("Assets/Create/UGF/AssetProcessor/Add to Asset Processors", true, 2000)]
+        [MenuItem(ADD_ASSET_PROCESSOR_MENU_NAME, true, 2000)]
         private static bool AddAssetProcessorValidate()
         {
             return !ContainsAll(Selection.assetGUIDs);
         }
 
-        [MenuItem("Assets/Create/UGF/AssetProcessor/Remove from Asset Processors", false, 2000)]
+        [MenuItem(REMOVE_ASSET_PROCESSOR_MENU_NAME, false, 2000)]
         private static void RemoveAssetProcessorMenu()
         {
             string[] guids = Selection.assetGUIDs;
@@ -33,11 +36,11 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor
             {
                 string guid = guids[i];
 
-                AssetProcessorSettings.Remove(guid);
+                AssetProcessorSettings.RemoveAsset(guid);
             }
         }
 
-        [MenuItem("Assets/Create/UGF/AssetProcessor/Remove from Asset Processors", true, 2000)]
+        [MenuItem(REMOVE_ASSET_PROCESSOR_MENU_NAME, true, 2000)]
         private static bool RemoveAssetProcessorValidate()
         {
             return ContainsAll(Selection.assetGUIDs);

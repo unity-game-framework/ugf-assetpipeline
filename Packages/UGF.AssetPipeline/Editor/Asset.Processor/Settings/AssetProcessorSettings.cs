@@ -5,7 +5,6 @@ using UnityEditor;
 
 namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
 {
-    [InitializeOnLoad]
     public static class AssetProcessorSettings
     {
         public static bool Active
@@ -25,84 +24,120 @@ namespace UGF.AssetPipeline.Editor.Asset.Processor.Settings
             CustomSettingsEditorUtility.DEFAULT_PACKAGE_EXTERNAL_FOLDER
         );
 
-        private static readonly AssetProcessorProvider m_provider = new AssetProcessorProvider();
-        private static readonly AssetProcessorSettingsObserver m_observer = new AssetProcessorSettingsObserver(m_provider, m_settings.Data);
-
         static AssetProcessorSettings()
         {
-            m_observer.UpdateProvider();
-            m_settings.Saved += OnDataChanged;
-            m_settings.Loaded += OnDataChanged;
         }
 
         public static bool Contains(string guid)
         {
-            return m_provider.Contains(guid);
+            if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
+
+            return m_settings.Data.Assets.ContainsKey(guid);
         }
 
-        public static bool Contains(string guid, Type processorType)
+        public static bool Contains(IAssetProcessor processor)
         {
-            return m_provider.Contains(guid, processorType);
+            if (processor == null) throw new ArgumentNullException(nameof(processor));
+
+            return m_settings.Data.Processors.Contains(processor);
         }
 
-        public static void Add(string guid)
+        public static void AddAsset(string guid)
         {
-            m_provider.Add(guid);
-            m_observer.UpdateData();
+            if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
+
+            m_settings.Data.Assets.Add(guid, new List<IAssetProcessor>());
             m_settings.SaveSettings();
         }
 
-        public static void Add(string guid, IAssetProcessor processor)
+        public static void RemoveAsset(string guid)
         {
-            m_provider.Add(guid, processor);
-            m_observer.UpdateData();
+            if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
+
+            m_settings.Data.Assets.Remove(guid);
             m_settings.SaveSettings();
         }
 
-        public static void Remove(string guid)
+        public static void AddAssetProcessor(string guid, IAssetProcessor processor)
         {
-            m_provider.Remove(guid);
-            m_observer.UpdateData();
+            if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
+            if (processor == null) throw new ArgumentNullException(nameof(processor));
+
+            if (!Contains(processor))
+            {
+                AddProcessor(processor);
+            }
+
+            if (!m_settings.Data.Assets.TryGetValue(guid, out List<IAssetProcessor> processors))
+            {
+                processors = new List<IAssetProcessor>();
+
+                m_settings.Data.Assets.Add(guid, processors);
+            }
+
+            processors.Add(processor);
             m_settings.SaveSettings();
         }
 
-        public static void Remove(string guid, Type processorType)
+        public static void RemoveAssetProcessor(string guid, IAssetProcessor processor)
         {
-            m_provider.Remove(guid, processorType);
-            m_observer.UpdateData();
+            if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
+            if (processor == null) throw new ArgumentNullException(nameof(processor));
+
+            if (m_settings.Data.Assets.TryGetValue(guid, out List<IAssetProcessor> processors))
+            {
+                processors.Remove(processor);
+                m_settings.SaveSettings();
+            }
+        }
+
+        public static void AddProcessor(IAssetProcessor processor)
+        {
+            if (processor == null) throw new ArgumentNullException(nameof(processor));
+
+            m_settings.Data.Processors.Add(processor);
             m_settings.SaveSettings();
         }
 
-        public static void Clear()
+        public static void RemoveProcessor(IAssetProcessor processor)
         {
-            m_provider.Clear();
-            m_observer.UpdateData();
+            if (processor == null) throw new ArgumentNullException(nameof(processor));
+
+            foreach (KeyValuePair<string, List<IAssetProcessor>> pair in m_settings.Data.Assets)
+            {
+                pair.Value.Remove(processor);
+            }
+
+            m_settings.Data.Processors.Remove(processor);
             m_settings.SaveSettings();
         }
 
-        public static bool TryGet<T>(string guid, Type processorType, out T processor) where T : IAssetProcessor
+        public static void GetProcessors(ICollection<IAssetProcessor> processors)
         {
-            return m_provider.TryGet(guid, processorType, out processor);
+            if (processors == null) throw new ArgumentNullException(nameof(processors));
+
+            for (int i = 0; i < m_settings.Data.Processors.Count; i++)
+            {
+                processors.Add(m_settings.Data.Processors[i]);
+            }
         }
 
-        public static bool TryGet(string guid, Type processorType, out IAssetProcessor processor)
+        public static bool TryGetProcessors(ICollection<IAssetProcessor> processors, string guid)
         {
-            return m_provider.TryGet(guid, processorType, out processor);
-        }
+            if (processors == null) throw new ArgumentNullException(nameof(processors));
+            if (string.IsNullOrEmpty(guid)) throw new ArgumentException("Value cannot be null or empty.", nameof(guid));
 
-        public static bool TryGetAll(string guid, out IReadOnlyDictionary<Type, IAssetProcessor> processors)
-        {
-            return m_provider.TryGetAll(guid, out processors);
-        }
+            if (m_settings.Data.Assets.TryGetValue(guid, out List<IAssetProcessor> collection))
+            {
+                for (int i = 0; i < collection.Count; i++)
+                {
+                    processors.Add(collection[i]);
+                }
 
-        public static bool TryGetAllOrdered(string guid, out IReadOnlyList<IAssetProcessor> processors)
-        {
-            return m_provider.TryGetAllOrdered(guid, out processors);
-        }
+                return collection.Count > 0;
+            }
 
-        private static void OnDataChanged()
-        {
-            m_observer.UpdateProvider();
+            return false;
         }
 
         [SettingsProvider]
