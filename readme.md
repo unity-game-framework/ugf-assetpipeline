@@ -4,13 +4,14 @@ UGF.AssetPipeline
 
 ## Info
 
-- **Version**: `0.0.0-preview`
+- **Version**: `0.1.0-preview`
 - **Unity Version**: `2019.3.0`
-- **Api Compatibility Level**: `.NET Standard 2.0`
+- **API Compatibility Level**: `.NET Standard 2.0`
 
 ### Dependencies
 
-- N/A
+- [UGF.EditorTools](https://github.com/unity-game-framework/ugf-editortools): `0.3.1-preview`
+- [UGF.CustomSettings](https://github.com/unity-game-framework/ugf-customsettings): `1.1.0`
 
 ### Changelog
 
