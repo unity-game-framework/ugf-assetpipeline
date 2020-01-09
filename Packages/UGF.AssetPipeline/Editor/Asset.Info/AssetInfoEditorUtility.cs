@@ -24,12 +24,12 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
             return info;
         }
 
-        public static void SaveInfo(string path, object info, bool import = true)
+        public static void SaveInfo(string path, object info, bool import = true, bool readable = true)
         {
             if (string.IsNullOrEmpty(path)) throw new ArgumentException("Value cannot be null or empty.", nameof(path));
             if (info == null) throw new ArgumentNullException(nameof(info));
 
-            string text = EditorJsonUtility.ToJson(info, true);
+            string text = EditorJsonUtility.ToJson(info, readable);
 
             File.WriteAllText(path, text);
 
