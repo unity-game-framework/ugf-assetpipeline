@@ -1,5 +1,7 @@
 ﻿using System;
+using UnityEditor;
 using UnityEditor.Experimental.AssetImporters;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace UGF.AssetPipeline.Editor.Asset.Info
@@ -39,6 +41,12 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
             AssetInfoEditorUtility.SaveInfo(assetPath, info);
         }
 
-        protected abstract Object OnCreateAsset(TInfo info);
+        protected virtual Object OnCreateAsset(TInfo info)
+        {
+            string text = EditorJsonUtility.ToJson(info);
+            var asset = new TextAsset(text);
+
+            return asset;
+        }
     }
 }

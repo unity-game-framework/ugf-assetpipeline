@@ -10,9 +10,9 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
     [CustomEditor(typeof(AssetInfoImporter), true)]
     public class AssetInfoImporterEditor : ScriptedImporterEditor
     {
-        protected override Type extraDataType { get; } = typeof(AssetInfoData);
+        public string InfoName { get; private set; }
 
-        private string m_infoName;
+        protected override Type extraDataType { get; } = typeof(AssetInfoData);
 
         public override void OnEnable()
         {
@@ -20,7 +20,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
 
             var importer = (AssetInfoImporter)target;
 
-            m_infoName = ObjectNames.NicifyVariableName(importer.InfoType.Name);
+            InfoName = ObjectNames.NicifyVariableName(importer.InfoType.Name);
         }
 
         public override void OnInspectorGUI()
@@ -41,7 +41,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
             extraDataSerializedObject.UpdateIfRequiredOrScript();
 
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField(m_infoName, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(InfoName, EditorStyles.boldLabel);
 
             EditorIMGUIUtility.DrawSerializedPropertyChildren(extraDataSerializedObject, "m_info");
 
