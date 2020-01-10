@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - Nothing.
 
+## 0.2.0-preview - 2020-01-10
+- [Commits](https://github.com/unity-game-framework/ugf-assetpipeline/compare/0.1.0-preview...0.2.0-preview)
+- [Milestone](https://github.com/unity-game-framework/ugf-assetpipeline/milestone/2?closed=1)
+
+### Added
+- `AssetInfoImporterEditor.InfoName` to get display name of the info object.
+
+### Removed
+- `AssetInfoTextImporter`: use `AssetInfoImporter` instead.
+
 ## 0.1.0-preview - 2020-01-09
 - [Commits](https://github.com/unity-game-framework/ugf-assetpipeline/compare/d54ee29...0.1.0-preview)
 - [Milestone](https://github.com/unity-game-framework/ugf-assetpipeline/milestone/1?closed=1)
