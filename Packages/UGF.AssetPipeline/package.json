@@ -1,7 +1,7 @@
 {
     "name": "com.ugf.assetpipeline",
     "displayName": "UGF.AssetPipeline",
-    "version": "0.2.0-preview",
+    "version": "0.3.0-preview",
     "unity": "2019.3",
     "description": "No description.",
     "author": {
@@ -9,7 +9,7 @@
         "url": "https://github.com/unity-game-framework"
     },
     "dependencies": {
-        "com.ugf.editortools": "0.3.1-preview",
-        "com.ugf.customsettings": "1.1.0"
+        "com.ugf.editortools": "0.4.0-preview",
+        "com.ugf.customsettings": "2.0.0"
     }
 }

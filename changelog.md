@@ -26,6 +26,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - Nothing.
 
+## 0.3.0-preview - 2019-01-01
+- [Commits](https://github.com/unity-game-framework/ugf-assetpipeline/compare/0.2.0-preview...0.3.0-preview)
+- [Milestone](https://github.com/unity-game-framework/ugf-assetpipeline/milestone/3?closed=1)
+
+### Changed
+- Package dependencies:
+  - `com.ugf.editortools`: from `0.3.1-preview` to `0.4.0-preview`.
+  - `com.ugf.customsettings`: from `1.1.0` to `2.0.0`.
+
 ## 0.2.0-preview - 2020-01-10
 - [Commits](https://github.com/unity-game-framework/ugf-assetpipeline/compare/0.1.0-preview...0.2.0-preview)
 - [Milestone](https://github.com/unity-game-framework/ugf-assetpipeline/milestone/2?closed=1)
