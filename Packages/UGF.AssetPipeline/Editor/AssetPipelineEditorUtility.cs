@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using UnityEditor;
+using UnityEngine;
 
 namespace UGF.AssetPipeline.Editor
 {
@@ -15,6 +17,17 @@ namespace UGF.AssetPipeline.Editor
             string name = Path.GetFileNameWithoutExtension(path);
 
             return $"{directory}/{name}.{label}.{extensionName}";
+        }
+
+        public static void StartProjectWindowCreateTextFile(string name, string extensionName, string content)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentException("Value cannot be null or empty.", nameof(name));
+            if (string.IsNullOrEmpty(extensionName)) throw new ArgumentException("Value cannot be null or empty.", nameof(extensionName));
+            if (string.IsNullOrEmpty(content)) throw new ArgumentException("Value cannot be null or empty.", nameof(content));
+
+            Texture2D icon = AssetPreview.GetMiniTypeThumbnail(typeof(TextAsset));
+
+            ProjectWindowUtil.CreateAssetWithContent($"{name}.{extensionName}", content, icon);
         }
     }
 }
