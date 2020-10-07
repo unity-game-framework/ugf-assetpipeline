@@ -1,11 +1,10 @@
 ﻿using System;
-using UGF.AssetPipeline.Editor.Asset.Info;
 using UnityEngine;
 
 namespace UGF.AssetPipeline.Editor.Tests.Asset.Info
 {
     [Serializable]
-    public class TestAssetInfo : IAssetInfo
+    public class TestAssetInfo
     {
         [SerializeField] private string m_name = "Test";
         [SerializeField] private bool m_boolValue = true;
