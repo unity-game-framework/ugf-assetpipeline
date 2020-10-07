@@ -7,7 +7,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
     {
         public abstract Type InfoType { get; }
 
-        public abstract IAssetInfo Load();
-        public abstract void Save(IAssetInfo info);
+        public abstract object Load();
+        public abstract void Save(object info);
     }
 }

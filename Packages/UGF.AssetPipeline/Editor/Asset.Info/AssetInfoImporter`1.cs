@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace UGF.AssetPipeline.Editor.Asset.Info
 {
-    public abstract class AssetInfoImporter<TInfo> : AssetInfoImporter where TInfo : class, IAssetInfo, new()
+    public abstract class AssetInfoImporter<TInfo> : AssetInfoImporter where TInfo : class, new()
     {
         public override Type InfoType { get; } = typeof(TInfo);
 
@@ -19,12 +19,12 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
             context.SetMainObject(asset);
         }
 
-        public sealed override IAssetInfo Load()
+        public sealed override object Load()
         {
             return LoadInfo();
         }
 
-        public sealed override void Save(IAssetInfo info)
+        public sealed override void Save(object info)
         {
             SaveInfo((TInfo)info);
         }

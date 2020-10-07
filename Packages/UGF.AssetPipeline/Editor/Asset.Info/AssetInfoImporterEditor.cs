@@ -52,7 +52,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
         {
             var data = (AssetInfoData)extraData;
             var importer = (AssetInfoImporter)targets[targetIndex];
-            IAssetInfo info = importer.Load();
+            object info = importer.Load();
 
             data.Info = info;
         }
