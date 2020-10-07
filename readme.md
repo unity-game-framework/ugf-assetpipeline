@@ -10,8 +10,7 @@ UGF.AssetPipeline
 
 ### Dependencies
 
-- `com.ugf.editortools`: `0.4.0-preview`
-- `com.ugf.customsettings`: `2.0.0`
+- `com.ugf.editortools`: `1.3.1`
 
 
 ### Description
