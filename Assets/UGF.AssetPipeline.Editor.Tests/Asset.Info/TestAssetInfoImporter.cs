@@ -1,10 +1,10 @@
 ﻿using UGF.AssetPipeline.Editor.Asset.Info;
-using UnityEditor.Experimental.AssetImporters;
+
 using UnityEngine;
 
 namespace UGF.AssetPipeline.Editor.Tests.Asset.Info
 {
-    [ScriptedImporter(0, "info")]
+    [UnityEditor.AssetImporters.ScriptedImporter(0, "info")]
     public class TestAssetInfoImporter : AssetInfoImporter<TestAssetInfo>
     {
         [SerializeField] private int m_intValue = 15;

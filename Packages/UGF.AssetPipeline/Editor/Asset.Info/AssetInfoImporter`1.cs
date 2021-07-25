@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEditor;
-using UnityEditor.Experimental.AssetImporters;
+
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -10,7 +10,7 @@ namespace UGF.AssetPipeline.Editor.Asset.Info
     {
         public override Type InfoType { get; } = typeof(TInfo);
 
-        public override void OnImportAsset(AssetImportContext context)
+        public override void OnImportAsset(UnityEditor.AssetImporters.AssetImportContext context)
         {
             TInfo info = LoadInfo();
             Object asset = OnCreateAsset(info);
