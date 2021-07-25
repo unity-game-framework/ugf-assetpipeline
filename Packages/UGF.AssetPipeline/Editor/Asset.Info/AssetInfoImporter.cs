@@ -1,9 +1,9 @@
 ﻿using System;
-
+using UnityEditor.AssetImporters;
 
 namespace UGF.AssetPipeline.Editor.Asset.Info
 {
-    public abstract class AssetInfoImporter : UnityEditor.AssetImporters.ScriptedImporter
+    public abstract class AssetInfoImporter : ScriptedImporter
     {
         public abstract Type InfoType { get; }
 

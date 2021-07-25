@@ -1,14 +1,14 @@
 ﻿using System;
 using UGF.EditorTools.Editor.IMGUI;
 using UnityEditor;
-
+using UnityEditor.AssetImporters;
 using Object = UnityEngine.Object;
 
 namespace UGF.AssetPipeline.Editor.Asset.Info
 {
     [CanEditMultipleObjects]
     [CustomEditor(typeof(AssetInfoImporter), true)]
-    public class AssetInfoImporterEditor : UnityEditor.AssetImporters.ScriptedImporterEditor
+    public class AssetInfoImporterEditor : ScriptedImporterEditor
     {
         public string InfoName { get; private set; }
 
